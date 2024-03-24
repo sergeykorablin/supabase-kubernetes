@@ -1,0 +1,73 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-analytics-service
+spec:
+  selector:
+    app: supabase-analytics
+  ports:
+    - protocol: TCP
+      port: 4000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-analytics
+  template:
+    metadata:
+      labels:
+        app: supabase-analytics
+    spec:
+      containers:
+        - name: supabase-analytics
+          image: supabase/logflare:1.4.0
+          ports:
+            - containerPort: 4000
+          env:
+            - name: LOGFLARE_NODE_HOST
+              value: 127.0.0.1
+            - name: DB_USERNAME
+              value: supabase_admin
+            - name: DB_DATABASE
+              value: postgres
+            - name: DB_HOSTNAME
+              value: supabase-postgres-service
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: DB_SCHEMA
+              value: _analytics
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-logflare
+                  key: apiKey
+            - name: LOGFLARE_SINGLE_TENANT
+              value: "true"
+            - name: LOGFLARE_SUPABASE_MODE
+              value: "true"
+
+            # Comment variables to use Big Query backend for analytics
+            - name: POSTGRES_BACKEND_URL
+              value: postgresql://supabase_admin:$(DB_PASSWORD)@supabase-postgres-service:5432/postgres
+            - name: POSTGRES_BACKEND_SCHEMA
+              value: _analytics
+            - name: LOGFLARE_FEATURE_FLAG_OVERRIDE
+              value: multibackend=true
+
+            # Uncomment to use Big Query backend for analytics
+            # - name: GOOGLE_PROJECT_ID
+            # value: ${GOOGLE_PROJECT_ID}
+            # - name: GOOGLE_PROJECT_NUMBER
+            # value: ${GOOGLE_PROJECT_NUMBER}

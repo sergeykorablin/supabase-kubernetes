@@ -1,0 +1,172 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-postgres-service
+spec:
+  selector:
+    app: supabase-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: supabase-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: supabase-postgres
+  template:
+    metadata:
+      labels:
+        app: supabase-postgres
+    spec:
+      #securityContext:
+      #  fsGroup: 102
+      #initContainers:
+      #  - name: supabase-postgres-init
+      #    image: busybox
+      #    command:
+      #      [
+      #        "sh",
+      #        "-c",
+      #        "chown -R 101:102 /var/lib/postgresql/data; chmod 0750 /var/lib/postgresql/data",
+      #      ]
+      #    volumeMounts:
+      #      - name: pg-data-vol
+      #        mountPath: /var/lib/postgresql/data
+      containers:
+        - name: supabase-postgres
+          image: supabase/postgres:15.1.0.147
+          #          securityContext:
+          #            capabilities:
+          #              drop:
+          #                - ALL
+          #            readOnlyRootFilesystem: true
+          #            runAsUser: 101
+          #            runAsNonRoot: true
+          #          command: ["postgres"]
+          #          args: [
+          #              "-c",
+          #              "config_file=/etc/postgresql/postgresql.conf",
+          #              "-c",
+          #              "log_min_messages=fatal", # prevents Realtime polling queries from appearing in logs]
+          #            ]
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_HOST
+              value: /var/run/postgresql
+            - name: PGPORT
+              value: "5432"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: PGDATABASE
+              value: postgres
+            - name: POSTGRES_DB
+              value: postgres
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: secret
+            - name: JWT_EXP
+              value: "3600"
+
+          volumeMounts:
+            - name: pg-data-vol
+              mountPath: /var/lib/postgresql/data
+
+            - name: webhooks-sql
+              mountPath: /docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql
+              subPath: 98-webhooks.sql
+
+            - name: roles-sql
+              mountPath: /docker-entrypoint-initdb.d/init-scripts/99-roles.sql
+              subPath: 99-roles.sql
+
+            - name: jwt-sql
+              mountPath: /docker-entrypoint-initdb.d/init-scripts/99-jwt.sql
+              subPath: 99-jwt.sql
+
+            - name: realtime-sql
+              mountPath: /docker-entrypoint-initdb.d/migrations/99-realtime.sql
+              subPath: 99-realtime.sql
+
+            - name: logs-sql
+              mountPath: /docker-entrypoint-initdb.d/migrations/99-logs.sql
+              subPath: 99-logs.sql
+
+      volumes:
+        - name: pg-data-vol
+          persistentVolumeClaim:
+            claimName: supabase-postgres-pvc
+
+        - name: realtime-sql
+          configMap:
+            name: supabase-db-init
+            defaultMode: 0644
+            items:
+              - key: realtime.sql
+                path: 99-realtime.sql
+
+        - name: webhooks-sql
+          configMap:
+            name: supabase-db-init
+            defaultMode: 0644
+            items:
+              - key: webhooks.sql
+                path: 98-webhooks.sql
+
+        - name: roles-sql
+          configMap:
+            name: supabase-db-init
+            defaultMode: 0644
+            items:
+              - key: roles.sql
+                path: 99-roles.sql
+
+        - name: jwt-sql
+          configMap:
+            name: supabase-db-init
+            defaultMode: 0644
+            items:
+              - key: jwt.sql
+                path: 99-jwt.sql
+
+        - name: logs-sql
+          configMap:
+            name: supabase-db-init
+            defaultMode: 0644
+            items:
+              - key: logs.sql
+                path: 99-logs.sql

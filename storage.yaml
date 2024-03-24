@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-storage-service
+spec:
+  selector:
+    app: supabase-storage
+  ports:
+    - protocol: TCP
+      port: 5000
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: supabase-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-storage
+  template:
+    metadata:
+      labels:
+        app: supabase-storage
+    spec:
+      containers:
+        - name: supabase-storage
+          image: supabase/storage-api:v0.46.4
+          ports:
+            - containerPort: 5000
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: anonKey
+            - name: SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: serviceKey
+            - name: POSTGREST_URL
+              value: http://supabase-rest-service:3000
+            - name: PGRST_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: secret
+            - name: DATABASE_URL
+              value: postgres://supabase_storage_admin:$(POSTGRES_PASSWORD)@supabase-postgres-service:5432/postgres
+            - name: FILE_SIZE_LIMIT
+              value: "52428800"
+            - name: STORAGE_BACKEND
+              value: file
+            - name: FILE_STORAGE_BACKEND_PATH
+              value: /var/lib/storage
+            - name: TENANT_ID
+              value: stub
+            # TODO: https://github.com/supabase/storage-api/issues/55
+            - name: REGION
+              value: stub
+            - name: GLOBAL_S3_BUCKET
+              value: stub
+            - name: ENABLE_IMAGE_TRANSFORMATION
+              value: "true"
+            - name: IMGPROXY_URL
+              value: http://supabase-imgproxy-service:5001
+          volumeMounts:
+            - name: storage-data-vol
+              mountPath: /var/lib/storage
+      volumes:
+        - name: storage-data-vol
+          persistentVolumeClaim:
+            claimName: supabase-storage-pvc

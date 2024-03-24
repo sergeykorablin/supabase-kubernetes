@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-functions-service
+spec:
+  selector:
+    app: supabase-edge-functions
+  ports:
+    - protocol: TCP
+      port: 9000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-edge-functions
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-edge-functions
+  template:
+    metadata:
+      labels:
+        app: supabase-edge-functions
+    spec:
+      containers:
+        - name: supabase-edge-functions
+          image: supabase/edge-runtime:v1.38.0
+          #command: ["start"]
+          args: ["start", "--main-service", "/home/deno/functions/main"]
+          ports:
+            - containerPort: 9000
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: secret
+            - name: SUPABASE_URL
+              value: http://supabase-kong-service:8000
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: anonKey
+            - name: SUPABASE_SERVICE_ROLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: serviceKey
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: SUPABASE_DB_URL
+              value: postgresql://postgres:$(POSTGRES_PASSWORD)@supabase-postgres-service:5432/postgres
+            # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
+            - name: VERIFY_JWT
+              value: "false"
+
+          volumeMounts:
+            - name: index-ts
+              mountPath: /home/deno/functions/main/index.ts
+              subPath: index.ts
+
+      volumes:
+        - name: index-ts
+          configMap:
+            name: supabase-functions
+            defaultMode: 0644
+            items:
+              - key: index.ts
+                path: index.ts

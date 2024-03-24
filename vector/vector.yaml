@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-vector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-vector
+  template:
+    metadata:
+      labels:
+        app: supabase-vector
+    spec:
+      serviceAccountName: vector
+      containers:
+        - name: supabase-vector
+          image: timberio/vector:0.28.1-alpine
+          command: ["/bin/sh"]
+          args: ["/scripts/wrapper.sh"]
+          ports:
+            - containerPort: 9001
+          env:
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-logflare
+                  key: apiKey
+            - name: VECTOR_SELF_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: VECTOR_SELF_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: VECTOR_SELF_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+          volumeMounts:
+            - name: vector-yml
+              mountPath: /etc/vector/vector.yml
+              subPath: vector.yml
+            - name: wrapper-sh
+              mountPath: /scripts/wrapper.sh
+              subPath: wrapper.sh
+            - name: varlogpods
+              mountPath: /var/log/pods
+      volumes:
+        - name: vector-yml
+          configMap:
+            name: supabase-vector
+            defaultMode: 0644
+            items:
+              - key: vector.yml
+                path: vector.yml
+        - name: wrapper-sh
+          configMap:
+            name: supabase-vector
+            defaultMode: 0755
+            items:
+              - key: wrapper.sh
+                path: wrapper.sh
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
+            type: ""

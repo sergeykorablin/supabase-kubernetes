@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-auth
+  template:
+    metadata:
+      labels:
+        app: supabase-auth
+    spec:
+      containers:
+        - name: supabase-auth
+          image: supabase/gotrue:v2.143.0
+          ports:
+            - containerPort: 9999
+          env:
+            - name: GOTRUE_API_HOST
+              value: "0.0.0.0"
+            - name: GOTRUE_API_PORT
+              value: "9999"
+            - name: API_EXTERNAL_URL
+              value: http://kong.k3s.local:2080
+            - name: GOTRUE_DB_DRIVER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: GOTRUE_DB_DATABASE_URL
+              value: postgres://supabase_auth_admin:$(POSTGRES_PASSWORD)@supabase-postgres-service:5432/postgres
+            - name: GOTRUE_SITE_URL
+              value: ${SITE_URL}
+            - name: GOTRUE_URI_ALLOW_LIST
+              value: ${ADDITIONAL_REDIRECT_URLS}
+            - name: GOTRUE_DISABLE_SIGNUP
+              value: "true"
+            - name: GOTRUE_JWT_ADMIN_ROLES
+              value: service_role
+            - name: GOTRUE_JWT_AUD
+              value: authenticated
+            - name: GOTRUE_JWT_DEFAULT_GROUP_NAME
+              value: authenticated
+            - name: GOTRUE_JWT_EXP
+              value: "3600"
+            - name: GOTRUE_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: secret
+            - name: GOTRUE_EXTERNAL_EMAIL_ENABLED
+              value: "true"
+            - name: GOTRUE_MAILER_AUTOCONFIRM
+              value: "false"
+            # - name: GOTRUE_MAILER_SECURE_EMAIL_CHANGE_ENABLED
+            #   value: true
+            # - name: GOTRUE_SMTP_MAX_FREQUENCY
+            #   value: 1s
+            - name: GOTRUE_SMTP_ADMIN_EMAIL
+              value: "no-reply@example.com"
+            - name: GOTRUE_SMTP_HOST
+              value: smtp.example.com
+            - name: GOTRUE_SMTP_PORT
+              value: "465"
+            - name: GOTRUE_SMTP_USER
+              value: ${SMTP_USER}
+            - name: GOTRUE_SMTP_PASS
+              value: ${SMTP_PASS}
+            - name: GOTRUE_SMTP_SENDER_NAME
+              value: "Project Name"
+            - name: GOTRUE_MAILER_URLPATHS_INVITE
+              value: ${MAILER_URLPATHS_INVITE}
+            - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
+              value: ${MAILER_URLPATHS_CONFIRMATION}
+            - name: GOTRUE_MAILER_URLPATHS_RECOVERY
+              value: ${MAILER_URLPATHS_RECOVERY}
+            - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
+              value: ${MAILER_URLPATHS_EMAIL_CHANGE}
+            - name: GOTRUE_EXTERNAL_PHONE_ENABLED
+              value: "false"
+            - name: GOTRUE_SMS_AUTOCONFIRM
+              value: "false"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-auth-service
+spec:
+  selector:
+    app: supabase-auth
+  ports:
+    - protocol: TCP
+      port: 9999

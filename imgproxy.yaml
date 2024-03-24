@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-imgproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-imgproxy
+  template:
+    metadata:
+      labels:
+        app: supabase-imgproxy
+    spec:
+      containers:
+        - name: supabase-imgproxy
+          image: darthsim/imgproxy:v3.8.0
+          ports:
+            - containerPort: 5001
+          env:
+            - name: IMGPROXY_BIND
+              value: ":5001"
+            - name: IMGPROXY_LOCAL_FILESYSTEM_ROOT
+              value: /
+            - name: IMGPROXY_USE_ETAG
+              value: "true"
+            - name: IMGPROXY_ENABLE_WEBP_DETECTION
+              value: "true"
+          volumeMounts:
+            - name: storage-data-vol
+              mountPath: /var/lib/storage
+      volumes:
+        - name: storage-data-vol
+          persistentVolumeClaim:
+            claimName: supabase-storage-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-imgproxy-service
+spec:
+  selector:
+    app: supabase-imgproxy
+  ports:
+    - protocol: TCP
+      port: 5001

@@ -1,0 +1,58 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-rest-service
+spec:
+  selector:
+    app: supabase-rest
+  ports:
+    - protocol: TCP
+      port: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-rest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-rest
+  template:
+    metadata:
+      labels:
+        app: supabase-rest
+    spec:
+      containers:
+        - name: supabase-rest
+          image: postgrest/postgrest:v12.0.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: PGRST_DB_URI
+              value: postgres://authenticator:$(POSTGRES_PASSWORD)@supabase-postgres-service:5432/postgres
+            - name: PGRST_DB_SCHEMAS
+              value: public,storage,graphql_public
+            - name: PGRST_DB_ANON_ROLE
+              value: anon
+            - name: PGRST_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: secret
+            - name: PGRST_DB_USE_LEGACY_GUCS
+              value: "false"
+            - name: PGRST_APP_SETTINGS_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: secret
+            - name: PGRST_APP_SETTINGS_JWT_EXP
+              value: "3600"

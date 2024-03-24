@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supabase-studio-service
+spec:
+  selector:
+    app: supabase-studio
+  ports:
+    - protocol: TCP
+      port: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supabase-studio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supabase-studio
+  template:
+    metadata:
+      labels:
+        app: supabase-studio
+    spec:
+      containers:
+        - name: supabase-studio
+          image: supabase/20240301-0942bfe
+          ports:
+            - containerPort: 3000
+          env:
+            - name: STUDIO_PG_META_URL
+              value: http://supabase-meta-service:8080
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-db
+                  key: password
+            - name: SUPABASE_URL
+              value: http://supabase-kong-service:8000
+
+            - name: DEFAULT_ORGANIZATION_NAME
+              value: "My Org"
+            - name: DEFAULT_PROJECT_NAME
+              value: "My Project"
+
+            - name: SUPABASE_PUBLIC_URL
+              value: http://kong.k3s.local:2080
+
+            - name: SUPABASE_ANON_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: anonKey
+            - name: SUPABASE_SERVICE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-jwt
+                  key: serviceKey
+            - name: LOGFLARE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-logflare
+                  key: apiKey
+            - name: LOGFLARE_URL
+              value: http://supabase-analytics-service:4000
+            - name: NEXT_PUBLIC_ENABLE_LOGS
+              value: "true"
+            # Comment to use Big Query backend for analytics
+            - name: NEXT_ANALYTICS_BACKEND_PROVIDER
+              value: postgres
+            # Uncomment to use Big Query backend for analytics
+            # - name: NEXT_ANALYTICS_BACKEND_PROVIDER
+            # value: bigquery
