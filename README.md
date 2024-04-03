@@ -19,7 +19,8 @@ kubectl create secret generic supabase-db  --from-literal=username='postgres'  -
 ```
 
 > [!IMPORTANT]
-> Don't use provided keys in production environments
+> Don't use provided keys in production environments.
+>
 > Generate JWT keys here https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
 
 ```sh
@@ -97,14 +98,6 @@ kubectl apply -f functions
 ## Analytics (Logflare)
 
 ```sh
-kubectl apply -f analytics.yaml
-```
-
-## Studio (Supabase Dashboard)
-
-Set `SUPABASE_URL`
-
-```sh
 openssl rand -hex 20
 e32e83530e9981ee07b9e0757d7bbbccef9c2ef9
 ```
@@ -112,6 +105,14 @@ e32e83530e9981ee07b9e0757d7bbbccef9c2ef9
 ```sh
 kubectl create secret generic supabase-logflare --from-literal=apiKey='e32e83530e9981ee07b9e0757d7bbbccef9c2ef9'
 ```
+
+```sh
+kubectl apply -f analytics.yaml
+```
+
+## Studio (Supabase Dashboard)
+
+Set `SUPABASE_URL` in `studio.yaml`
 
 ```sh
 kubectl apply -f studio.yaml
