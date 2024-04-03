@@ -18,7 +18,7 @@ Edit PVC in `postgres/postgres.yaml`
 kubectl create secret generic supabase-db  --from-literal=username='postgres'  --from-literal=password='YOUR-DB-PASS'
 ```
 
-> [!WARN]
+> [!IMPORTANT]
 > Don't use provided keys in production environments
 > Generate JWT keys here https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
 
