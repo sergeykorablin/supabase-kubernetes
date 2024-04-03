@@ -46,10 +46,18 @@ spec:
                   name: supabase-jwt
                   key: serviceKey
 
+              # username/password to access dashboard
             - name: DASHBOARD_USERNAME
-              value: supabase
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-kong
+                  key: username
             - name: DASHBOARD_PASSWORD
-              value: supabase
+              valueFrom:
+                secretKeyRef:
+                  name: supabase-kong
+                  key: password
+
           volumeMounts:
             - name: config
               mountPath: /home/kong/temp.yml
