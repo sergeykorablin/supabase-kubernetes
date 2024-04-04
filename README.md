@@ -53,8 +53,10 @@ This service is an entry point to access all Supabase services. Don't expose oth
 
 Setup NodePort/LoadBalancer for Service in `kong/service.yaml` or use `kong/ingress.yaml`
 
+Create secret for dashboard basic authentication
+
 ```sh
-kubectl create secret generic supabase-kong  --from-literal=username='supabase'  --from-literal=password='ddashboard-password'
+kubectl create secret generic supabase-kong  --from-literal=username='supabase'  --from-literal=password='dashboard-password'
 ```
 
 ```sh
