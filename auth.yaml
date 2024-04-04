@@ -67,9 +67,15 @@ spec:
             - name: GOTRUE_SMTP_PORT
               value: "465"
             - name: GOTRUE_SMTP_USER
-              value: ${SMTP_USER}
+              valueFrom:
+                secretKeyRef:
+                  name: gotrue-smtp
+                  key: username
             - name: GOTRUE_SMTP_PASS
-              value: ${SMTP_PASS}
+              valueFrom:
+                secretKeyRef:
+                  name: gotrue-smtp
+                  key: password
             - name: GOTRUE_SMTP_SENDER_NAME
               value: "Project Name"
             - name: GOTRUE_MAILER_URLPATHS_INVITE

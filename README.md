@@ -83,9 +83,15 @@ kubectl apply -f storage.yaml
 kubectl apply -f imgproxy.yaml
 ```
 
-## Auth (User registration and authentication)
+## Auth (GoTrue. User registration and authentication)
 
 Set `API_EXTERNAL_URL` and smtp variables in `auth.yaml`
+
+Create secret for smtp authentication
+
+```sh
+kubectl create secret generic gotrue-smtp  --from-literal=username='supabase@example.com'  --from-literal=password='SMTP-PASSWORD'
+```
 
 ```sh
 kubectl apply -f auth.yaml
