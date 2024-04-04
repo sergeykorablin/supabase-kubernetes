@@ -47,7 +47,7 @@ spec:
               value: "My Project"
 
             - name: SUPABASE_PUBLIC_URL
-              value: http://kong.k3s.local:2080
+              value: http://supabase.example.com
 
             - name: SUPABASE_ANON_KEY
               valueFrom:
