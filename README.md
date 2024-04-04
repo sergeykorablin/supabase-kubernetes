@@ -56,7 +56,9 @@ Setup NodePort/LoadBalancer for Service in `kong/service.yaml` or use `kong/ingr
 Create secret for dashboard basic authentication
 
 ```sh
-kubectl create secret generic supabase-kong  --from-literal=username='supabase'  --from-literal=password='dashboard-password'
+kubectl create secret generic supabase-kong \
+    --from-literal=username='supabase' \
+    --from-literal=password='dashboard-password'
 ```
 
 ```sh
@@ -90,7 +92,9 @@ Set `API_EXTERNAL_URL` and smtp variables in `auth.yaml`
 Create secret for smtp authentication
 
 ```sh
-kubectl create secret generic gotrue-smtp  --from-literal=username='supabase@example.com'  --from-literal=password='SMTP-PASSWORD'
+kubectl create secret generic gotrue-smtp \
+    --from-literal=username='supabase@example.com' \
+    --from-literal=password='SMTP-PASSWORD'
 ```
 
 ```sh
@@ -111,7 +115,8 @@ e32e83530e9981ee07b9e0757d7bbbccef9c2ef9
 ```
 
 ```sh
-kubectl create secret generic supabase-logflare --from-literal=apiKey='e32e83530e9981ee07b9e0757d7bbbccef9c2ef9'
+kubectl create secret generic supabase-logflare \
+    --from-literal=apiKey='e32e83530e9981ee07b9e0757d7bbbccef9c2ef9'
 ```
 
 ```sh
