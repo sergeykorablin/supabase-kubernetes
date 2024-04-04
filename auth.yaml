@@ -17,6 +17,11 @@ spec:
           image: supabase/gotrue:v2.143.0
           ports:
             - containerPort: 9999
+          livenessProbe:
+            initialDelaySeconds: 5
+            httpGet:
+              path: /health
+              port: 9999
           env:
             - name: GOTRUE_API_HOST
               value: "0.0.0.0"
