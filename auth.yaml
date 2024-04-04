@@ -23,7 +23,7 @@ spec:
             - name: GOTRUE_API_PORT
               value: "9999"
             - name: API_EXTERNAL_URL
-              value: http://kong.k3s.local:2080
+              value: http://supabase.example.com
             - name: GOTRUE_DB_DRIVER
               value: postgres
             - name: POSTGRES_PASSWORD
@@ -34,7 +34,7 @@ spec:
             - name: GOTRUE_DB_DATABASE_URL
               value: postgres://supabase_auth_admin:$(POSTGRES_PASSWORD)@supabase-postgres-service:5432/postgres
             - name: GOTRUE_SITE_URL
-              value: ${SITE_URL}
+              value: http://app.example.com
             - name: GOTRUE_URI_ALLOW_LIST
               value: ${ADDITIONAL_REDIRECT_URLS}
             - name: GOTRUE_DISABLE_SIGNUP
@@ -79,13 +79,13 @@ spec:
             - name: GOTRUE_SMTP_SENDER_NAME
               value: "Project Name"
             - name: GOTRUE_MAILER_URLPATHS_INVITE
-              value: ${MAILER_URLPATHS_INVITE}
+              value: ${API_EXTERNAL_URL}/auth/v1/verify
             - name: GOTRUE_MAILER_URLPATHS_CONFIRMATION
-              value: ${MAILER_URLPATHS_CONFIRMATION}
+              value: ${API_EXTERNAL_URL}/auth/v1/verify
             - name: GOTRUE_MAILER_URLPATHS_RECOVERY
-              value: ${MAILER_URLPATHS_RECOVERY}
+              value: ${API_EXTERNAL_URL}/auth/v1/verify
             - name: GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE
-              value: ${MAILER_URLPATHS_EMAIL_CHANGE}
+              value: ${API_EXTERNAL_URL}/auth/v1/verify
             - name: GOTRUE_EXTERNAL_PHONE_ENABLED
               value: "false"
             - name: GOTRUE_SMS_AUTOCONFIRM
