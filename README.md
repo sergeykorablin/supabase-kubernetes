@@ -1,7 +1,13 @@
 # Self-hosted Supabase with Kubernetes
 
+This is a set of plain Kubernetes YAML files to deploy a self-hosted Supabase instance.
+
+There are a few forks of the outdated community supported [Supabase Helm chart](https://github.com/supabase-community/supabase-kubernetes), you can check them out.
+
 > [!NOTE]  
 > This is a Draft. Not fully tested yet.
+
+# Installation
 
 Create namespace for Supabase and set it as default
 
@@ -13,6 +19,8 @@ kubectl config set-context --current --namespace=supabase
 ## Postgres
 
 Edit PVC in `postgres/postgres.yaml`
+
+Create secret with postgres login/password
 
 ```sh
 kubectl create secret generic supabase-db  --from-literal=username='postgres'  --from-literal=password='YOUR-DB-PASS'
