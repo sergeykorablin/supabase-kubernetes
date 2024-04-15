@@ -23,7 +23,9 @@ Edit PVC in `postgres/postgres.yaml`
 Create secret with postgres login/password
 
 ```sh
-kubectl create secret generic supabase-db  --from-literal=username='postgres'  --from-literal=password='YOUR-DB-PASS'
+kubectl create secret generic supabase-db \
+    --from-literal=username='postgres' \
+    --from-literal=password='YOUR-DB-PASS'
 ```
 
 > [!IMPORTANT]
