@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: supabase-edge-functions
-          image: supabase/edge-runtime:v1.41.3
+          image: supabase/edge-runtime:v1.43.2
           args: ["start", "--main-service", "/home/deno/functions/main"]
           ports:
             - containerPort: 9000
