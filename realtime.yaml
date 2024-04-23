@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: supabase-realtime
-          image: supabase/realtime:v2.28.23
+          image: supabase/realtime:v2.28.32
           command: ["/bin/sh"]
           args:
             [
