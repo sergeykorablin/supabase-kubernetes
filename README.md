@@ -31,7 +31,7 @@ kubectl create secret generic supabase-db \
 > [!IMPORTANT]
 > Don't use provided keys in production environments.
 >
-> Generate JWT keys here https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
+> Create your own JWT keys here https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys
 
 ```sh
 kubectl create secret generic supabase-jwt \
