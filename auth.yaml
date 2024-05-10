@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: supabase-auth
-          image: supabase/gotrue:v2.149.0
+          image: supabase/gotrue:v2.151.0
           ports:
             - containerPort: 9999
           livenessProbe:
