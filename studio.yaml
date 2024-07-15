@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: supabase-studio
-          image: supabase/studio:20240514-6f5cabd
+          image: supabase/studio:20240701-05dfbec
           ports:
             - containerPort: 3000
           env:
