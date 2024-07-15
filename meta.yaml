@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: supabase-meta
-          image: supabase/postgres-meta:v0.80.0
+          image: supabase/postgres-meta:v0.83.2
           ports:
             - containerPort: 8080
           env:
