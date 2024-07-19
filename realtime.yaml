@@ -24,6 +24,8 @@ spec:
           ports:
             - containerPort: 4000
           env:
+            - name: APP_NAME
+              value: realtime
             - name: PORT
               value: "4000"
             - name: DB_HOST
