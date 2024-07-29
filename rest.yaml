@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: supabase-rest
-          image: postgrest/postgrest:v12.0.1
+          image: postgrest/postgrest:v12.2.0
           ports:
             - containerPort: 3000
           env:
