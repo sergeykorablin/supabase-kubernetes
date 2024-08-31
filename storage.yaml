@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: supabase-storage
-          image: supabase/storage-api:v1.0.6
+          image: supabase/storage-api:v1.10.1
           ports:
             - containerPort: 5000
           env:
